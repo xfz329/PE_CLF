@@ -44,60 +44,33 @@ data_prepared = std_scaler.fit_transform(X_train)
 
 from classifier.myclassifer import My_classifier as mclf
 from sklearn.linear_model import SGDClassifier
-
-m = mclf(SGDClassifier(random_state=42))
-m.set_Datasets(X_train,y_train,X_test,y_test)
-m.fit()
-m.cross_val_score()
-m.cross_val_predict()
-m.performance_judge()
-m.train_scores(**{"cv":5})
-m.precision_recall_curve()
-m.roc_curve()
-m.predict()
-m.performance_judge(False)
-
-param_grid = [
-    {"loss":["hinge","modified_huber","log"], "penalty":["l2","l1","elasticnet"]}
-]
-m.grid_search(**{"param_grid":param_grid, "cv":5})
-
 from sklearn.tree import  DecisionTreeClassifier
+from sklearn.ensemble import  RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
+# ComplementNB 不能接受数据特征中存在负值
+from sklearn.linear_model import LogisticRegression
 
 
-mtree = mclf(DecisionTreeClassifier(random_state = 42))
-mtree.set_Datasets(X_train,y_train,X_test,y_test)
-mtree.fit()
-mtree.cross_val_score()
-mtree.cross_val_predict()
-mtree.performance_judge()
-mtree.train_scores(**{"cv":5})
-mtree.precision_recall_curve()
-mtree.roc_curve()
-mtree.predict()
-mtree.performance_judge(False)
+msgd = mclf(SGDClassifier(random_state=42))
+mtree = mclf(DecisionTreeClassifier(random_state = 42, max_depth=3))
+mrf = mclf(RandomForestClassifier(n_jobs= -1, n_estimators= 500,max_leaf_nodes=16))
+mknn = mclf(KNeighborsClassifier())
+mgb = mclf(GaussianNB())
+mlog= mclf(LogisticRegression(solver= "liblinear", random_state= 42,max_iter= 3000))
+clfs = [msgd,mtree,mrf,mknn,mgb,mlog]
 
-#
-# from sklearn.metrics import  mean_squared_error
-# predictions = tree_clf.predict(data_prepared)
-# tree_mse = mean_squared_error(y, predictions)
-# tree_rmse = np.sqrt(tree_mse)
-# log.info(tree_rmse)
-#
-#
-# from sklearn.model_selection import  cross_val_score
-#
-# scores = cross_val_score(tree_clf, data_prepared, y, scoring= "neg_mean_squared_error",cv = 10)
-# rmse_scores = np.sqrt(-scores)
-#
-#
-# def display_scores(scores):
-#     log.info("Scores:" + str(scores))
-#     log.info("Mean:" + str(scores.mean()))
-#     log.info("Standard deviation:" + str(scores.std()))
-#
-# display_scores(rmse_scores)
+for clf in clfs:
+    clf.set_Datasets(X_train, y_train, X_test, y_test)
+    clf.fit()
+    clf.performance_judge()
+    clf.predict()
+    clf.performance_judge(on_test_set=True)
 
+# param_grid = [
+#     {"loss":["hinge","modified_huber","log"], "penalty":["l2","l1","elasticnet"]}
+# ]
+# m.grid_search(**{"param_grid":param_grid, "cv":5})
 
 log.info("over")
 

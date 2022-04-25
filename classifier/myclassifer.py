@@ -20,7 +20,7 @@ class My_classifier:
 
 
     def info(self,pre,sub):
-        self.log.info(pre+" of clf " + str(self.clf)+" is\n"+str(sub))
+        self.log.info(pre+" of classifier " + str(self.clf)+" is\n"+str(sub))
 
     def set_Datasets(self,X_train,y_train,X_test, y_test):
         self.X_train = X_train
@@ -44,10 +44,15 @@ class My_classifier:
         self.y_train_pred = cross_val_predict(self.clf, self.X_train, self.y_train,**kwargs)
         self.info("cross_val_predict",self.y_train_pred)
 
-    def performance_judge(self,on_train_set = True):
-        if on_train_set:
+    def performance_judge(self,on_test_set = False):
+        if not on_test_set:
             self.log.info("on train set")
+            self.cross_val_score()
+            self.cross_val_predict()
             self.get_performance(self.y_train,self.y_train_pred)
+            self.train_scores(**{"cv":5})
+            self.precision_recall_curve()
+            self.roc_curve()
         else:
             self.y_test_pred = self.clf.predict(self.X_test)
             self.log.info("on test set")
@@ -126,4 +131,20 @@ class My_classifier:
         gs = GridSearchCV(self.clf, **kwargs)
         gs.fit(self.X_train, self.y_train)
         self.log.info(gs.best_estimator_)
+
+    def export2dot(self):
+        from sklearn.tree import export_graphviz,DecisionTreeClassifier
+        if isinstance(self.clf,DecisionTreeClassifier):
+            export_graphviz(
+                self.clf,
+                out_file="dt_clf.dot",
+                feature_names=self.X_train.columns,
+                class_names=["Health","PE"],
+                rounded=True,
+                filled=True
+            )
+        else:
+            self.log.error("clf is not a decisiontree classifier, exporting failed.")
+
+
 
