@@ -15,6 +15,7 @@ train models to classify PE
     3. 数据降维与调整
         * PCA
         * 贝叶斯优化
+        * RF
 3. 模型训练与评估
     1. 单个模型的训练
         * KNN
@@ -22,7 +23,8 @@ train models to classify PE
         * SGD
         * NB
         * LOG 非常耗时
-        * SVM
+        * SVM 非常耗时
+        * MLP
     2. 多个模型的训练与投票器
         * RF
     3. 二段模型的训练

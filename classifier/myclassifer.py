@@ -4,8 +4,12 @@
 #   created at 21:11 on 2022/4/24
 import  matplotlib.pyplot as plt
 from utils.logger import Logger
+import os
 
 class My_classifier:
+    root_dir = "."
+    dir = "figures"
+    figure_path = os.path.join(root_dir, dir)
 
     def __init__(self, clf,**kwargs):
         self.clf = clf
@@ -57,6 +61,7 @@ class My_classifier:
             self.y_test_pred = self.clf.predict(self.X_test)
             self.log.info("on test set")
             self.get_performance(self.y_test,self.y_test_pred)
+            self.export2dot()
 
     def get_performance(self,y_true,y_pred):
         from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_score,accuracy_score
@@ -104,27 +109,36 @@ class My_classifier:
         x_max = thresholds[-1]
 
         plt.xlim([x_min, x_max])
-        # save_fig("precision_recall_vs_threshold_plot")
-        plt.show()
+        plt.title(self.clf.__class__.__name__)
+        self.save_fig("Precision_recall_vs_threshold " + self.clf.__class__.__name__)
+        # plt.show()
 
     def roc_curve(self):
         from sklearn.metrics import roc_curve, roc_auc_score
 
         fpr, tpr, thresholds = roc_curve(self.y_train, self.y_train_scores)
-        self.plot_roc_curve(fpr,tpr)
-
         auc = roc_auc_score(self.y_train,self.y_train_scores)
+        self.plot_roc_curve(fpr, tpr, auc)
         self.info("auc",auc)
 
-    def plot_roc_curve(self, fpr, tpr, label=None):
+    def plot_roc_curve(self, fpr, tpr, auc, label=None):
         plt.figure(figsize=(8, 6))
         plt.plot(fpr, tpr, linewidth=2, label=label)
         plt.plot([0, 1], [0, 1], 'k--')
         plt.axis([0, 1, 0, 1])
         plt.xlabel('False Positive Rate', fontsize=16)
         plt.ylabel('True Positive Rate', fontsize=16)
-        # self.save_fig(filename)
-        plt.show()
+        plt.title("AUC of "+self.clf.__class__.__name__+" is "+str(auc))
+        self.save_fig("ROC of "+self.clf.__class__.__name__)
+        # plt.show()
+
+    def save_fig(self, fig_id, tight_layout=True, fig_extension="png", resolution=300):
+        import os
+        path = os.path.join(self.figure_path, fig_id + "." + fig_extension)
+        self.log.info("Saving figure "+fig_id)
+        if tight_layout:
+            plt.tight_layout()
+        plt.savefig(path, format=fig_extension, dpi=resolution)
 
     def grid_search(self,**kwargs):
         from  sklearn.model_selection import GridSearchCV
@@ -137,14 +151,12 @@ class My_classifier:
         if isinstance(self.clf,DecisionTreeClassifier):
             export_graphviz(
                 self.clf,
-                out_file="dt_clf.dot",
+                out_file=os.path.join(self.figure_path,"dt_clf"+str(self.clf)+".dot"),
                 feature_names=self.X_train.columns,
                 class_names=["Health","PE"],
                 rounded=True,
                 filled=True
             )
-        else:
-            self.log.error("clf is not a decisiontree classifier, exporting failed.")
 
 
 
