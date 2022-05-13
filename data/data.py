@@ -4,6 +4,7 @@
 #   created at 18:56 on 2022/4/15
 import os
 import pandas as pd
+import pingouin as pg
 from utils.logger import Logger
 
 class Data:
@@ -48,3 +49,23 @@ class Data:
         self.data.drop(columns = cl,inplace = True)
         self.data.info()
         return self.data
+
+    def non_para_analyze(self):
+        between = self.data["PE_state"].copy()
+        dvs = self.data.drop("PE_state", axis = 1)
+        health = self.data.loc[self.data["PE_state"] == 0]
+        pe = self.data.loc[self.data["PE_state"] == 1]
+        varibles = []
+        mwu = []
+        kruskal = []
+        for dv in dvs.columns:
+            varibles.append(dv)
+            ans = pg.kruskal(self.data , dv = dv, between = "PE_state" , detailed= True)
+            kruskal.append(ans.loc["Kruskal","p-unc"].round(3))
+            ans = pg.mwu(health[dv],pe[dv])
+            mwu.append(ans.loc["MWU","p-val"].round(3))
+
+        result = pd.DataFrame(data = {"varibles":varibles , "mwu":mwu,"kruskal":kruskal})
+        csv_full_path = os.path.join(Data.csv_path, "stastitics.csv")
+        result.to_csv(csv_full_path)
+        self.log.info("stastitics finished!")

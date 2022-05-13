@@ -2,8 +2,9 @@ import logging
 import logging.config
 from pathlib import Path
 import os
+from utils.project_dir import ProjectDir
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = ProjectDir().dir_root
 config= {
     'version' : 1,
     'disable_existing_loggers' : False,
@@ -18,9 +19,7 @@ config= {
         },
     },
     'filters' : {
-        'require_debug_true' : {
-            '()': 'django.utils.log.RequireDebugTrue',
-        },
+
     },
     'handlers': {
         'console' : {
@@ -67,18 +66,16 @@ class Logger:
     def __init__(self,logger_name):
         self.set_dirs_files()
         logging.config.dictConfig(config)
-        self.__logger=logging.getLogger(logger_name)
+        self.logger=logging.getLogger(logger_name)
 
     def set_dirs_files(self):
-        import sys
-        LOG_PATH = os.path.join(BASE_DIR, 'log')
-        if not os.path.exists(LOG_PATH):
-            os.makedirs(LOG_PATH)
+        LOG_PATH = ProjectDir().dir_logs
         DEBUG_FILE = os.path.join(LOG_PATH, 'debug.log')
         WARN_FILE = os.path.join(LOG_PATH, 'warn.log')
         INFO_FILE = os.path.join(LOG_PATH, 'info.log')
         FILES = [DEBUG_FILE, WARN_FILE, INFO_FILE]
 
+        import sys
         for f in FILES:
             if not os.path.exists(f):
                 if str(sys.platform).startswith('win'):
@@ -88,7 +85,7 @@ class Logger:
                     os.mknod(f)
 
     def get_log(self):
-        return self.__logger
+        return self.logger
 
 if __name__ == "__main__":
     t=Logger('clf')
