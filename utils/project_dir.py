@@ -11,6 +11,7 @@ class ProjectDir:
         self.dir_dataset = self.join("dataset")
         self.dir_figures = self.join("figures")
         self.dir_input = self.join("input")
+        self.dir_output = self.join("output")
         self.dir_logs = self.join("log")
 
     def join(self, subdir):

@@ -2,6 +2,10 @@
 train models to classify PE
 
 ## 目标
+0. 数据准备
+    1. PPG特征处理（Java程序）
+    2. 汇总
+        * 运行utils.merger下的merger.py 及merger_detect.py即可。
 1. 特征构建
     1. 已有特征构建
     2. 序列化特征输入分析
