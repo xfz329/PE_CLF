@@ -4,48 +4,13 @@
 #   created at 11:03 on 2022/4/24
 from utils.figuresaver import FigureSaver
 from utils.logger import Logger
-from data.data import Data
-import numpy as np
+from data_loader.feature_loader import FeatureLoader
 
-log = Logger("clf").get_log()
-d = Data()
-fs = FigureSaver()
-d.load_data("total.csv")
-data= d.drop_invalid_value()
-print(data.columns)
-
-
-from sklearn.model_selection import  StratifiedShuffleSplit
-
-split = StratifiedShuffleSplit(n_splits=1 ,test_size= 0.2 , random_state= 42)
-for train_index, test_index in split.split(data, data["PE_state"]):
-    train_set = data.loc[train_index]
-    test_set = data.loc[test_index]
-
-from sklearn.preprocessing import  StandardScaler
-std_scaler = StandardScaler()
-
-corr_matrix = data.corr()
-log.info(corr_matrix["PE_state"].sort_values(ascending= False))
-X_train = train_set.drop("PE_state", axis = 1)
-X_train = std_scaler.fit_transform(X_train)
-y_train = train_set["PE_state"].copy()
-X_test = test_set.drop("PE_state", axis = 1)
-X_test = std_scaler.fit_transform(X_test)
-y_test = test_set["PE_state"].copy()
-# X_train.info()
-# y_train.info()
-
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import  StandardScaler
-#
-# pipeline = Pipeline([
-#     ('')
-#
-# ])
-
-std_scaler = StandardScaler()
-data_prepared = std_scaler.fit_transform(X_train)
+log = Logger().get_log()
+fl = FeatureLoader()
+fl.load_data()
+X_train,X_test,y_train,y_test =fl.split()
+fl.corr()
 
 from classifier.myclassifer import My_classifier as mclf
 from sklearn.linear_model import SGDClassifier
@@ -71,7 +36,7 @@ mlog= mclf(LogisticRegression(solver= "liblinear", random_state= 42,max_iter= 30
 mlp = mclf(MLPClassifier(random_state=1, max_iter=300))
 msvm =mclf(LinearSVC(C=1,loss= "hinge",max_iter=100000))
 clfs = [msgd,mtree,mrf,mknn,mgb,mlog,mlp,msvm]
-# clfs = [mtree,mtree2]
+# clfs = [mtree]
 
 for clf in clfs:
     start = time.time()

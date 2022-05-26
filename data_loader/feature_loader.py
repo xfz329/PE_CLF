@@ -10,7 +10,7 @@ class FeatureLoader(AbstractDataLoader):
     def __init__(self):
         AbstractDataLoader.__init__(self)
 
-    def load_data(self, file, file_path = None):
+    def load_data(self, file= "mf20220513_193751.csv", file_path = None):
         if file_path is None:
             file_path = self.input_dir
         full_path = os.path.join(file_path,file)
@@ -45,6 +45,30 @@ class FeatureLoader(AbstractDataLoader):
                 res.append(c)
         return res
 
+    def split(self):
+        from sklearn.model_selection import StratifiedShuffleSplit
+
+        split = StratifiedShuffleSplit(n_splits=1, test_size=0.2, random_state=42)
+        data = self.data
+        for train_index, test_index in split.split(data, data["PE_state"]):
+            train_set = data.loc[train_index]
+            test_set = data.loc[test_index]
+
+        X_train = train_set.drop("PE_state", axis=1)
+        y_train = train_set["PE_state"].copy()
+        X_test = test_set.drop("PE_state", axis=1)
+        y_test = test_set["PE_state"].copy()
+
+        # from sklearn.preprocessing import StandardScaler
+        # std_scaler = StandardScaler()
+        # X_train = std_scaler.fit_transform(X_train)
+        # X_test = std_scaler.fit_transform(X_test)
+        return X_train,X_test,y_train,y_test
+
+    def corr(self):
+        corr_matrix = self.data.corr()
+        self.log.info(corr_matrix["PE_state"].sort_values(ascending=False))
+
     def non_para_analyze(self):
         import pingouin as pg
 
@@ -70,5 +94,5 @@ class FeatureLoader(AbstractDataLoader):
 
 if __name__ == "__main__":
     fd = FeatureLoader()
-    data = fd.load_data("mf20220513_193751.csv")
+    data = fd.load_data()
     fd.non_para_analyze()

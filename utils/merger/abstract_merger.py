@@ -15,7 +15,7 @@ class AbstractMerger:
         root_dir = ProjectDir().dir_root
         self.target = os.path.join(root_dir, "input",prefix+time.strftime("%Y%m%d_%H%M%S", time.localtime())+".csv")
         self.is_header_wrote = False
-        self.logger = Logger('clf').get_log()
+        self.logger = Logger().get_log()
         self.title = title
         self.feature_names = title.get_feature_names()
         self.field_names = title.get_title()

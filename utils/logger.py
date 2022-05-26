@@ -63,7 +63,7 @@ config= {
     }
 }
 class Logger:
-    def __init__(self,logger_name):
+    def __init__(self,logger_name = "clf"):
         self.set_dirs_files()
         logging.config.dictConfig(config)
         self.logger=logging.getLogger(logger_name)
