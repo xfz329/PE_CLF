@@ -4,7 +4,7 @@
 #   created at 12:23 on 2022/5/13
 import json
 import os
-import time
+from utils.time_stamp import Time_stamp
 from utils.logger import Logger
 from utils.project_dir import ProjectDir
 
@@ -13,7 +13,7 @@ class AbstractMerger:
         self.data = []
         self.suffix = suffix
         root_dir = ProjectDir().dir_root
-        self.target = os.path.join(root_dir, "input",prefix+time.strftime("%Y%m%d_%H%M%S", time.localtime())+".csv")
+        self.target = os.path.join(root_dir, "input",prefix+Time_stamp().get_time_stamp()+".csv")
         self.is_header_wrote = False
         self.logger = Logger().get_log()
         self.title = title

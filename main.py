@@ -8,7 +8,7 @@ from data_loader.feature_loader import FeatureLoader
 
 log = Logger().get_log()
 fl = FeatureLoader()
-fl.load_data()
+fl.load_data("0.17.0_mf_20220526_163827.csv")
 X_train,X_test,y_train,y_test =fl.split()
 fl.corr()
 

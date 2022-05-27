@@ -3,7 +3,9 @@
 #   created by Jiang Feng(silencejiang@zju.edu.cn)
 #   created at 13:01 on 2022/5/13
 import csv
+
 from utils.merger.abstract_merger import AbstractMerger
+
 
 class Merger(AbstractMerger):
     def __init__(self, title, prefix, suffix = ".json"):
@@ -41,14 +43,20 @@ class Merger(AbstractMerger):
                 writer.writerow(out_dict)
 
 if __name__ == '__main__':
-    file = "D:\\UrgeData\\Documents\\Codes\\Graduate\\PE_CLF\\dataset\\data_version0.16.4\\Total\\NO\\by_wavePLETH_2017080113_2022_05_12_11_36_47.json"
-    no = "D:\\UrgeData\\Documents\\Codes\\Graduate\\PE_CLF\\dataset\\data_version0.16.4\\Total\\NO"
-    pe = "D:\\UrgeData\\Documents\\Codes\\Graduate\\PE_CLF\\dataset\\data_version0.16.4\\Total\\PE"
+    import os
+    from utils.data_version import Version
 
-    dirs=[pe,no]
+    root = "D:\\UrgeData\\Documents\\Codes\\Graduate\\PE_PPG"
+    version_short = Version().current_data_version()
+    version = "data_version"+version_short
+    path_type ="Total"
+    no = os.path.join(root,version,path_type,"NO")
+    pe = os.path.join(root,version,path_type,"PE")
+
+    dirs = [no, pe]
     from utils.titles.title import Title
     t = Title()
-    x= Merger(t,prefix="mf")
+    x= Merger(t,prefix=version_short+"_mf_")
     # x.read_json(file)
     # x.process_file(file)
     # x.process_dir(pe)

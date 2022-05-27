@@ -5,12 +5,13 @@
 import os
 import pandas as pd
 from data_loader.abstract_data_loader import AbstractDataLoader
+from utils.time_stamp import Time_stamp
 
 class FeatureLoader(AbstractDataLoader):
     def __init__(self):
         AbstractDataLoader.__init__(self)
 
-    def load_data(self, file= "mf20220513_193751.csv", file_path = None):
+    def load_data(self, file, file_path = None):
         if file_path is None:
             file_path = self.input_dir
         full_path = os.path.join(file_path,file)
@@ -88,7 +89,7 @@ class FeatureLoader(AbstractDataLoader):
 
         result = pd.DataFrame(data = {"varibles":varibles , "mwu":mwu,"kruskal":kruskal})
 
-        full_path = os.path.join(self.output_dir, "stastitics_"+self.get_time_stamp()+"_.csv")
+        full_path = os.path.join(self.output_dir, "stastitics_"+Time_stamp().get_time_stamp()+"_.csv")
         result.to_csv(full_path)
         self.log.info("stastitics finished!")
 

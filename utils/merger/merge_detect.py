@@ -3,8 +3,11 @@
 #   created by Jiang Feng(silencejiang@zju.edu.cn)
 #   created at 16:28 on 2022/5/13
 import csv
+
 import numpy as np
+
 from utils.merger.abstract_merger import AbstractMerger
+
 
 class MergeDetect(AbstractMerger):
     def __init__(self, title, prefix, suffix = ".json", normalization_range = (0,1)):
@@ -57,10 +60,20 @@ class MergeDetect(AbstractMerger):
 
 
 if __name__ == '__main__':
-    dt = "D:\\UrgeData\\Documents\\Codes\\Graduate\\PE_CLF\\dataset\\data_version0.16.4\\Detection"
+    import os
+    from utils.data_version import Version
+
+    root = "D:\\UrgeData\\Documents\\Codes\\Graduate\\PE_PPG"
+    version_short = Version().current_data_version()
+    version = "data_version" + version_short
+    path_type = "Detection"
+    no = os.path.join(root, version, path_type, "NO")
+    pe = os.path.join(root, version, path_type, "PE")
+
+    dirs = [no, pe]
 
     from utils.titles.title_detect import TitleDetect
     t = TitleDetect()
-    x= MergeDetect(t, prefix="mp")
+    x= MergeDetect(t, prefix=version_short+"_mp_")
     x.set_fill_num(-1)
-    x.merge_dir(dt)
+    x.merge_dirs(dirs)

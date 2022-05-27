@@ -15,13 +15,13 @@ class PointLoader(AbstractDataLoader):
         self.y = None
 
 
-    def load_data(self, file = "mp20220513_194847.csv", file_path = None):
+    def load_data(self, file , file_path = None):
         if file_path is None:
             file_path = self.input_dir
         full_path = os.path.join(file_path,file)
         self.data = pd.read_csv(full_path)
         self.construct()
-        return self.split()
+        return self.X, self.y
 
     def construct(self):
         self.X = self.data.iloc[:,5:]
@@ -35,4 +35,4 @@ class PointLoader(AbstractDataLoader):
 
 if __name__=="__main__":
     pl = PointLoader()
-    pl.load_data()
+    pl.load_data("0.17.0_mp_20220526_163806.csv")

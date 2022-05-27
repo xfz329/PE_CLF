@@ -18,7 +18,7 @@ class MapLoader(AbstractDataLoader):
         self.y = None
 
 
-    def load_data(self, file = "mp20220513_194847.csv", file_path = None):
+    def load_data(self, file , file_path = None):
         if file_path is None:
             file_path = self.input_dir
         full_path = os.path.join(file_path,file)
@@ -55,6 +55,6 @@ class MapLoader(AbstractDataLoader):
 
 if __name__=="__main__":
     ml = MapLoader()
-    ml.load_data()
+    ml.load_data("0.17.0_mp_20220526_163806.csv")
     for i in range(198,204):
         ml.show_ppg(i)

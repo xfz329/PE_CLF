@@ -20,7 +20,3 @@ class AbstractDataLoader(object, metaclass= ABCMeta):
     @abstractmethod
     def split(self):
         pass
-
-    def get_time_stamp(self):
-        import time
-        return time.strftime("%Y%m%d_%H%M%S", time.localtime())

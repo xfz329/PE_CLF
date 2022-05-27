@@ -8,7 +8,6 @@ import os
 class ProjectDir:
     def __init__(self):
         self.dir_root = Path(__file__).resolve().parent.parent
-        self.dir_dataset = self.join("dataset")
         self.dir_figures = self.join("figures")
         self.dir_input = self.join("input")
         self.dir_output = self.join("output")
