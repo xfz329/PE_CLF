@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 
 import pandas as pd
+import numpy as np
 from sklearn.cluster import KMeans
 
 from data_loader.feature_loader import FeatureLoader
@@ -48,7 +49,7 @@ class My_cluster:
         labels = kmeans.labels_
         self.judge_outer(self.y_f, self.fp)
         self.judge_inner(self.X_f,labels)
-        self.draw("features",self.X_p,self.fp)
+        self.draw("cluster using features",self.X_p,self.fp)
 
 
         self.log.info("judge the points")
@@ -56,54 +57,78 @@ class My_cluster:
         labels = kmeans.labels_
         self.judge_outer(self.y_p, self.pp)
         self.judge_inner(self.X_p, labels)
-        self.draw("points", self.X_p, self.pp)
+        self.draw("cluster using points", self.X_p, self.pp)
 
 
     def draw(self, title, data, pred):
-        # fig = plt.figure()
-        # plt.title(title)
+        self.draw_3d(title, data, pred)
+        self.draw_2d(title, data, pred)
+
+    def draw_order(self,pred):
+        num_non_zero = np.sum(pred)
+        num_zero = len(pred) - num_non_zero
+        if num_non_zero > num_zero:
+            return 0, num_non_zero - 1
+        return 1 , num_zero-1
+
+    def draw_3d(self, title, data, pred):
+        self.log.info("draw3d "+title)
         plt.clf()
         ax = plt.axes(projection='3d')
-        length = len(data)
+        ax.set_xlabel('sample points')
+        ax.set_ylabel('single ppg')
+        ax.set_zlabel('amp of ppg')
+        ax.set_title(title)
 
-        front = -1
-        back = -1
+        order, index = self.draw_order(pred)
+
+        back = len(pred)-1
         for i in range(len(pred)):
-            data_of_piece = data.loc[i].values.tolist()
-            z = list(filter(check_minus_1,data_of_piece))
-            x = range(len(z))
-            if pred[i] == 1:
-                front += 1
-                y = [front]*len(z)
-                color_type = Color_1
-            else:
-                back += 1
-                y = [length-1-back]*len(z)
-                color_type = Color_0
-            ax.plot(x,y,z,color=color_type)
-        ax.set_xlabel('x')
-        ax.set_ylabel('y')
-        ax.set_zlabel('z')
-        ax.set_title('3D contour')
-        plt.show()
+            if pred[i] == order :
+                data_of_piece = data.loc[i].values.tolist()
+                z = list(filter(check_minus_1, data_of_piece))
+                x = range(len(z))
+                y = [back] * len(z)
+                ax.plot(x, y, z, color=Color_1)
+                back = back -1
 
+        back = index
+        for i in range(len(pred)):
+            if pred[i] == 1 - order :
+                data_of_piece = data.loc[i].values.tolist()
+                z = list(filter(check_minus_1, data_of_piece))
+                x = range(len(z))
+                y = [back] * len(z)
+                ax.plot(x, y, z, color=Color_0)
+                back = back -1
 
+        path = os.path.join(ProjectDir().dir_figures, title + "_3d.png" )
+        plt.savefig(path,format="png",dpi=300)
+        # plt.show()
 
+    def draw_2d(self, title, data, pred):
+        self.log.info("draw2d " + title)
+        plt.clf()
+        plt.title(title)
+        order, _ = self.draw_order(pred)
 
+        for i in range(len(pred)):
+            if pred[i] == order :
+                data_of_piece = data.loc[i].values.tolist()
+                y_label = list(filter(check_minus_1,data_of_piece))
+                x_label = range(len(y_label))
+                plt.plot(x_label,y_label,color = Color_1)
 
+        for i in range(len(pred)):
+            if pred[i] == 1 - order :
+                data_of_piece = data.loc[i].values.tolist()
+                y_label = list(filter(check_minus_1,data_of_piece))
+                x_label = range(len(y_label))
+                plt.plot(x_label,y_label,color = Color_0)
 
-    def draw_single(self):
-        plt.title("1")
-        for i in range(len(self.y_p)):
-            data = self.X_p.loc[i].values.tolist()
-            y_label = list(filter(check_minus_1,data))
-            # print(y_label)
-            x_label = range(len(y_label))
-            color_type = Color_0
-            if self.pp[i] == 1:
-                color_type = Color_1
-            plt.plot(x_label,y_label,color = color_type)
-        plt.show()
+        path = os.path.join(ProjectDir().dir_figures, title + "_2d.png")
+        plt.savefig(path, format="png", dpi=300)
+        # plt.show()
 
     def judge_outer(self,true_label,pred_label):
         from sklearn.metrics import confusion_matrix,adjusted_rand_score
@@ -162,12 +187,9 @@ def check_minus_1(x):
     return x != -1
 
 
-
-
 if __name__ == "__main__":
     mc =My_cluster()
     mc.fit_predict()
-    mc.draw_single()
     # mc.save()
 
 
