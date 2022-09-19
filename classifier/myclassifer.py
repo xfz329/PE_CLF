@@ -4,14 +4,12 @@
 #   created at 21:11 on 2022/4/24
 import  matplotlib.pyplot as plt
 from utils.logger import Logger
+from utils.project_dir import ProjectDir
 import os
 
 class My_classifier:
-    root_dir = "."
-    dir = "figures"
-    figure_path = os.path.join(root_dir, dir)
-
     def __init__(self, clf,**kwargs):
+        self.out_dir = ProjectDir().dir_figures
         self.clf = clf
         self.log = Logger("clf").get_log()
         self.X_train = None
@@ -134,7 +132,7 @@ class My_classifier:
 
     def save_fig(self, fig_id, tight_layout=True, fig_extension="png", resolution=300):
         import os
-        path = os.path.join(self.figure_path, fig_id + "." + fig_extension)
+        path = os.path.join(self.out_dir, fig_id + "." + fig_extension)
         self.log.info("Saving figure "+fig_id)
         if tight_layout:
             plt.tight_layout()
@@ -148,15 +146,34 @@ class My_classifier:
 
     def export2dot(self):
         from sklearn.tree import export_graphviz,DecisionTreeClassifier
+        import pydotplus
+
         if isinstance(self.clf,DecisionTreeClassifier):
+            self.log.info(self.clf)
+            out_file = os.path.join(self.out_dir,"dt_clf"+str(self.clf)+".dot")
             export_graphviz(
                 self.clf,
-                out_file=os.path.join(self.figure_path,"dt_clf"+str(self.clf)+".dot"),
+                out_file=out_file,
                 feature_names=self.X_train.columns,
                 class_names=["Health","PE"],
                 rounded=True,
                 filled=True
             )
+            graph = pydotplus.graph_from_dot_file(out_file)
+            # Image(graph.create_png())
+            out_file = os.path.join(self.out_dir, "dt_clf" + str(self.clf) + ".png")
+            graph.write_png(out_file)
+
+    def fit_predict(self):
+        import time
+
+        start = time.time()
+        self.fit()
+        self.performance_judge()
+        self.predict()
+        self.performance_judge(on_test_set=True)
+        end = time.time()
+        self.log.info("time consuming " + str(end - start))
 
 
 

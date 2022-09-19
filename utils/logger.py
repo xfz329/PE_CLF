@@ -10,11 +10,11 @@ config= {
     'disable_existing_loggers' : False,
     'formatters': {
         'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d}{message}\n',
             'style': '{',
         },
         'simple': {
-            'format': '{levelname} {message}',
+            'format': '{levelname} {message}\n',
             'style': '{',
         },
     },

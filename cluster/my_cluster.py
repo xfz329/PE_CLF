@@ -21,6 +21,7 @@ from utils.time_stamp import Time_stamp
 
 Color_0 = "#6699CC"
 Color_1 = "#99CCFF"
+Colors = [Color_0, Color_1]
 
 
 class My_cluster:
@@ -54,6 +55,7 @@ class My_cluster:
 
         self.log.info("judge the points")
         self.pp = kmeans.fit_predict(self.X_p)
+        self.show_center(kmeans)
         labels = kmeans.labels_
         self.judge_outer(self.y_p, self.pp)
         self.judge_inner(self.X_p, labels)
@@ -173,6 +175,43 @@ class My_cluster:
         ss = silhouette_score(X, labels, metric="euclidean")
         self.log.info("ss+euclidean")
         self.log.info(ss)
+
+    def show_center(self, k):
+        self.log.info("center_points")
+        points = k.cluster_centers_
+        y = points[0]
+        x = range(len(y))
+
+        plt.clf()
+        plt.plot(x,y,color = Color_0)
+        y = points[1]
+        plt.plot(x,y,color = Color_1)
+        x = [0, 120]
+        y = [0, 0]
+        plt.plot(x, y, 'r--')
+        path = os.path.join(ProjectDir().dir_figures, "cluster_center_points.png")
+        plt.savefig(path, format="png", dpi=300)
+
+        result = pd.DataFrame(data={"pt0": points[0], "pt1": points[1]})
+        full_path = os.path.join(ProjectDir().dir_output,
+                                 "cluster_centers_" + Time_stamp().get_time_stamp() + "_.csv")
+        result.to_csv(full_path)
+
+    def show_center_3(self, k):
+        # bugs
+        self.log.info("center_points")
+        plt.clf()
+        for points, color in k.cluster_centers_, Colors:
+            y = points
+            x = range(len(y))
+            plt.plot(x,y, color= color)
+        x = [0, 120]
+        y = [0, 0]
+        plt.plot(x, y, 'r--')
+        path = os.path.join(ProjectDir().dir_figures, "clustering","cluster_center_points.png")
+        plt.savefig(path, format="png", dpi=300)
+
+
 
     def save(self):
         diff = self.y_f - self.y_p
