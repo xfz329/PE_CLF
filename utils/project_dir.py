@@ -12,9 +12,13 @@ class ProjectDir:
         self.dir_input = self.join("input")
         self.dir_output = self.join("output")
         self.dir_logs = self.join("log")
+        self.dir_models = self.join("models")
 
-    def join(self, subdir):
-        full_dir = os.path.join(self.dir_root, subdir)
+    def join(self,subdir,root = None):
+        if root is None:
+            full_dir = os.path.join(self.dir_root, subdir)
+        else:
+            full_dir = os.path.join(root, subdir)
         if not os.path.exists(full_dir):
             os.makedirs(full_dir)
         return full_dir

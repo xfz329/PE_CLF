@@ -20,3 +20,7 @@ class AbstractDataLoader(object, metaclass= ABCMeta):
     @abstractmethod
     def split(self):
         pass
+
+    @abstractmethod
+    def split_by_person(self):
+        pass

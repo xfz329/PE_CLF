@@ -9,3 +9,6 @@ class Time_stamp:
 
     def get_time_stamp(self):
         return time.strftime("%Y%m%d_%H%M%S", time.localtime())
+
+    def get_day(self):
+        return time.strftime("%Y%m%d", time.localtime())

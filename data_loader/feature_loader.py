@@ -10,12 +10,13 @@ from utils.time_stamp import Time_stamp
 class FeatureLoader(AbstractDataLoader):
     def __init__(self):
         AbstractDataLoader.__init__(self)
+        self.data_all = None
 
     def load_data(self, file, file_path = None):
         if file_path is None:
             file_path = self.input_dir
         full_path = os.path.join(file_path,file)
-        self.data = pd.read_csv(full_path)
+        self.data_all = pd.read_csv(full_path)
         self.drop_invalid_value()
         return self.data
 
@@ -25,21 +26,21 @@ class FeatureLoader(AbstractDataLoader):
         cl.append("person_name")
         cl.append("Pulse")
         self.log.info(cl)
-        self.data.info()
-        self.data.drop(columns=cl, inplace=True)
+        self.data_all.info()
+        self.data=self.data_all.drop(columns=cl, inplace=False)
         self.data.info()
 
     def is_column_duplicated(self,cl):
-        idx = self.data.index
+        idx = self.data_all.index
         s = set()
         for i in idx:
-            s.add(self.data[cl].get(i))
+            s.add(self.data_all[cl].get(i))
             if len(s) > 1:
                 return False
         return True
 
     def get_duplicated_columns(self):
-        cl = self.data.columns
+        cl = self.data_all.columns
         res = []
         for c in cl:
             if self.is_column_duplicated(c):
@@ -65,6 +66,51 @@ class FeatureLoader(AbstractDataLoader):
         # X_train = std_scaler.fit_transform(X_train)
         # X_test = std_scaler.fit_transform(X_test)
         return X_train,X_test,y_train,y_test
+
+    def split_by_person(self):
+        from sklearn.model_selection import train_test_split
+        train =[]
+        test = []
+
+        health = self.data_all.loc[self.data_all["PE_state"] == 0]
+        health_person_list = health["person_name"].values.tolist()
+        health_person_list = list(set(health_person_list))
+        health_person_name = pd.DataFrame(health_person_list,columns=["person_name"])
+
+        pe = self.data_all.loc[self.data_all["PE_state"] == 1]
+        pe_person_list = pe["person_name"].values.tolist()
+        pe_person_list = list(set(pe_person_list))
+        pe_person_name = pd.DataFrame(pe_person_list, columns=["person_name"])
+
+        train_name,test_name = train_test_split(health_person_name,test_size=0.2,random_state=42)
+        for x in train_name.values.tolist():
+            train = train + x
+        for x in test_name.values.tolist():
+            test = test + x
+        print(train)
+        print(test)
+
+        train_name, test_name = train_test_split(pe_person_name, test_size=0.2, random_state=42)
+        for x in train_name.values.tolist():
+            train = train + x
+        for x in test_name.values.tolist():
+            test = test + x
+        print(train)
+        print(test)
+
+
+
+        train_set=self.data_all.loc[self.data_all["person_name"].isin(train)]
+        test_set = self.data_all.loc[self.data_all["person_name"].isin(test)]
+
+
+        X_train = train_set.drop(["PE_state","file_name","person_name","Pulse"], axis=1)
+        y_train = train_set["PE_state"].copy()
+        X_test = test_set.drop(["PE_state","file_name","person_name","Pulse"], axis=1)
+        y_test = test_set["PE_state"].copy()
+
+        return X_train, X_test, y_train, y_test
+
 
     def corr(self):
         corr_matrix = self.data.corr()
@@ -95,5 +141,7 @@ class FeatureLoader(AbstractDataLoader):
 
 if __name__ == "__main__":
     fd = FeatureLoader()
-    data = fd.load_data()
+    data = fd.load_data("0.17.0_mf_20220526_163827.csv")
+    fd.split_by_person()
+    fd.split()
     fd.non_para_analyze()

@@ -2,14 +2,20 @@
 #   The myclassifer.py in PE_CLF
 #   created by Jiang Feng(silencejiang@zju.edu.cn)
 #   created at 21:11 on 2022/4/24
+import os
+import joblib
+import time
+
 import  matplotlib.pyplot as plt
+
 from utils.logger import Logger
 from utils.project_dir import ProjectDir
-import os
+from utils.time_stamp import Time_stamp
 
 class My_classifier:
     def __init__(self, clf,**kwargs):
         self.out_dir = ProjectDir().dir_figures
+        self.model_dir = ProjectDir().dir_models
         self.clf = clf
         self.log = Logger("clf").get_log()
         self.X_train = None
@@ -23,6 +29,14 @@ class My_classifier:
 
     def info(self,pre,sub):
         self.log.info(pre+" of classifier " + str(self.clf)+" is\n"+str(sub))
+
+    def set_clf(self, pkl_file):
+        self.clf = joblib.load(pkl_file)
+        ps = pkl_file.index(".pkl")
+        txt_file = pkl_file[0:ps]+'.txt'
+        with open(txt_file,'r') as f:
+            content = f.read()
+            self.log.info("model paras "+content)
 
     def set_Datasets(self,X_train,y_train,X_test, y_test):
         self.X_train = X_train
@@ -165,15 +179,45 @@ class My_classifier:
             graph.write_png(out_file)
 
     def fit_predict(self):
-        import time
-
         start = time.time()
         self.fit()
         self.performance_judge()
         self.predict()
         self.performance_judge(on_test_set=True)
         end = time.time()
+        self.dump()
         self.log.info("time consuming " + str(end - start))
 
+    def predict_only(self):
+        start = time.time()
+        self.predict()
+        self.performance_judge(on_test_set=True)
+        end = time.time()
+        self.log.info("time consuming " + str(end - start))
+
+    def dump(self):
+        t= Time_stamp()
+        full_path = os.path.join(self.model_dir,t.get_day())
+        self.log.info(full_path)
+        ps = str(self.clf).index("(")
+        pe = str(self.clf).index(")")
+        clf_type = str(self.clf)[0:ps]
+        ts = t.get_time_stamp()
+        name = "model_"+clf_type+"_"+ts
+        suffix = ".pkl"
+        pkl_file = os.path.join(full_path,name+suffix)
+        joblib.dump(self.clf,pkl_file)
+        self.log.info(pkl_file)
+
+        clf_conf = str(self.clf)[ps+1:pe]
+        self.log.info(clf_conf)
+        suffix = ".txt"
+        txt_file = os.path.join(full_path,name+suffix)
+        with open(txt_file,"w") as f:
+            f.write(clf_conf)
 
 
+if __name__=="__main__":
+    from sklearn.svm import LinearSVC
+    m=My_classifier(LinearSVC(C=1))
+    m.dump()
