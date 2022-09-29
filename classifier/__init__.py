@@ -3,3 +3,4 @@
 #   created by Jiang Feng(silencejiang@zju.edu.cn)
 #   created at 21:15 on 2022/4/24
 from .myclassifer import *
+from .count_by_person import *

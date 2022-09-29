@@ -49,6 +49,8 @@ class My_classifier:
 
     def predict(self):
         self.y_test_pred = self.clf.predict(self.X_test)
+        self.log.info("predict info")
+        self.log.info(self.y_test_pred)
 
     def cross_val_score(self, **kwargs):
         from sklearn.model_selection import cross_val_score
@@ -187,6 +189,7 @@ class My_classifier:
         end = time.time()
         self.dump()
         self.log.info("time consuming " + str(end - start))
+        return self.y_test_pred
 
     def predict_only(self):
         start = time.time()
