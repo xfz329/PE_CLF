@@ -7,6 +7,7 @@ import joblib
 import time
 
 import  matplotlib.pyplot as plt
+import pandas as pd
 
 from utils.logger import Logger
 from utils.project_dir import ProjectDir
@@ -16,6 +17,7 @@ class My_classifier:
     def __init__(self, clf,**kwargs):
         self.out_dir = ProjectDir().dir_figures
         self.model_dir = ProjectDir().dir_models
+        self.data_dir = ProjectDir().dir_output
         self.clf = clf
         self.log = Logger("clf").get_log()
         self.X_train = None
@@ -49,8 +51,16 @@ class My_classifier:
 
     def predict(self):
         self.y_test_pred = self.clf.predict(self.X_test)
-        self.log.info("predict info")
+        self.log.info("predict detail is ")
         self.log.info(self.y_test_pred)
+        t = Time_stamp()
+        full_path = os.path.join(self.data_dir, "predict",t.get_day())
+        if not os.path.exists(full_path):
+            os.makedirs(full_path)
+        file_path = os.path.join(full_path, "predict_" + t.get_time_stamp() + ".csv")
+        self.y_test_pred.tofile(file_path,sep=',',format='%d')
+        self.log.info("y_test_predict has been stored to the file " + file_path)
+
 
     def cross_val_score(self, **kwargs):
         from sklearn.model_selection import cross_val_score
@@ -180,7 +190,31 @@ class My_classifier:
             out_file = os.path.join(self.out_dir, "dt_clf" + str(self.clf) + ".png")
             graph.write_png(out_file)
 
-    def fit_predict(self):
+    def show_importance(self):
+        from sklearn.ensemble import RandomForestClassifier
+        import numpy as np
+
+        # self.log.info("list detailed importance")
+        # if isinstance(self.clf, RandomForestClassifier):
+        #     for feat, importance in zip(self.X_train.columns, self.clf.feature_importances_):
+        #         self.log.info('feature: {f}, importance: {i}'.format(f=feat, i=importance))
+        #
+        # # important_features = []
+        # # for x, i in enumerate(self.clf.feature_importances_):
+        # #     if i > np.average(self.feature_importances_):
+        # #         important_features.append(x)
+        # # important_names = self.X_train.columns[important_features > np.mean(important_features)]
+
+        importances = pd.DataFrame({'feature': self.X_train.columns, 'importance': np.round(self.clf.feature_importances_, 3)})
+        full_path = os.path.join(self.data_dir, "rf", Time_stamp().get_day())
+        if not os.path.exists(full_path):
+            os.makedirs(full_path)
+        file_path = os.path.join(full_path, str(self.clf) + Time_stamp().get_time_stamp() + "_.csv")
+        importances.to_csv(file_path)
+        self.log.info("importance saved to file " + file_path)
+
+
+    def fit_predict(self,true_label= None):
         start = time.time()
         self.fit()
         self.performance_judge()
@@ -189,7 +223,12 @@ class My_classifier:
         end = time.time()
         self.dump()
         self.log.info("time consuming " + str(end - start))
-        return self.y_test_pred
+        # self.show_importance()
+        if true_label is None:
+            pass
+        else:
+            self.count_percentage(true_label)
+
 
     def predict_only(self):
         start = time.time()
@@ -201,6 +240,8 @@ class My_classifier:
     def dump(self):
         t= Time_stamp()
         full_path = os.path.join(self.model_dir,t.get_day())
+        if not os.path.exists(full_path):
+            os.makedirs(full_path)
         self.log.info(full_path)
         ps = str(self.clf).index("(")
         pe = str(self.clf).index(")")
@@ -218,6 +259,48 @@ class My_classifier:
         txt_file = os.path.join(full_path,name+suffix)
         with open(txt_file,"w") as f:
             f.write(clf_conf)
+
+    def count_percentage(self,true_label):
+        person_list = true_label["person_name"].values.tolist()
+        pure_list = list(set(person_list))
+        predict = self.y_test_pred
+        self.log.info("compare starts")
+
+        pe_true=[]
+        name = []
+        pulse_num = []
+        predict_pe_pulse_num = []
+        predict_pe_pulse_percentage = []
+
+
+        for x in pure_list:
+            start = person_list.index(x)
+            num = person_list.count(x)
+            true_pe_state = true_label.loc[true_label["person_name"] == x]["PE_state"].mean()
+            num, sums, precentage = get_detail_percentage(predict, start, num)
+
+            name.append(x)
+            pulse_num.append(sums)
+            predict_pe_pulse_num.append(num)
+            predict_pe_pulse_percentage.append(precentage)
+            pe_true.append(true_pe_state)
+
+        result = pd.DataFrame(data={"name": name, "pulse_num": pulse_num, "predict_pe_pulse_num": predict_pe_pulse_num,
+                                    "predict_pe_pulse_percentage":predict_pe_pulse_percentage,"pe_true":pe_true})
+
+        full_path = os.path.join(self.data_dir, "predict_result_by_person" ,Time_stamp().get_day())
+
+        if not os.path.exists(full_path):
+            os.makedirs(full_path)
+        file_path = os.path.join(full_path, str(self.clf)+Time_stamp().get_time_stamp() + "_.csv")
+        result.to_csv(file_path)
+        self.log.info("predict_result_by_person saved to file "+file_path)
+
+def get_detail_percentage(data, start, num):
+    sum = 0
+    for i in range(num):
+        sum = sum + data[start + i]
+    return num, sum, sum / num
 
 
 if __name__=="__main__":

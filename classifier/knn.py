@@ -10,14 +10,14 @@ from data_loader.feature_loader import FeatureLoader
 log = Logger().get_log()
 fl = FeatureLoader()
 fl.load_data("0.17.0_mf_20220526_163827.csv")
-X_train,X_test,y_train,y_test =fl.split()
+X_train,X_test,y_train,y_test,tat,tet =fl.split_by_person()
 
 from classifier.myclassifer import My_classifier as mclf
 from sklearn.neighbors import KNeighborsClassifier
 
 clf = mclf(KNeighborsClassifier())
 clf.set_Datasets(X_train, y_train, X_test, y_test)
-clf.fit_predict()
+clf.fit_predict(tet)
 
 
 from sklearn.model_selection import GridSearchCV
@@ -40,4 +40,4 @@ log.info(grid_search.cv_results_)
 
 clf = mclf(grid_search.best_estimator_)
 clf.set_Datasets(X_train, y_train, X_test, y_test)
-clf.fit_predict()
+clf.fit_predict(tet)

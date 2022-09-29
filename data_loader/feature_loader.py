@@ -120,6 +120,15 @@ class FeatureLoader(AbstractDataLoader):
         train_set=self.data_all.loc[self.data_all["person_name"].isin(train)]
         test_set = self.data_all.loc[self.data_all["person_name"].isin(test)]
 
+        # t = Time_stamp()
+        # full_path = os.path.join(self.output_dir, t.get_day())
+        # if not os.path.exists(full_path):
+        #     os.makedirs(full_path)
+        # file_path = os.path.join(full_path, "true_" + t.get_time_stamp() + ".csv")
+        # y_test_true = pd.DataFrame(test_set)
+        # y_test_true.to_csv(file_path)
+        # self.log.info("y_test_true has been stored to the file " + file_path)
+
         X_train = train_set.drop(["PE_state","file_name","person_name","Pulse","version"], axis=1,inplace=False)
         y_train = train_set["PE_state"].copy()
         X_test = test_set.drop(["PE_state","file_name","person_name","Pulse","version"], axis=1,inplace=False)
