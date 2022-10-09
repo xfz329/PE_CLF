@@ -6,10 +6,10 @@
 from utils.logger import Logger
 
 class TitleDetect:
-    def __init__(self):
+    def __init__(self, feature_names= 120):
         self.fixed = ["version", "file_name", "person_name", "PE_state", "Pulse"]
         self.feature_names = {
-            "P": 120,
+            "P": feature_names,
         }
         self.title = self.fixed
         self.logger = Logger('clf').get_log()
