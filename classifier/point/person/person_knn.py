@@ -1,22 +1,23 @@
 #   -*- coding:utf-8 -*-
-#   The pulse_knn1.py in PE_CLF
+#   The person_knn.py in PE_CLF
 #   created by Jiang Feng(silencejiang@zju.edu.cn)
-#   created at 2:54 on 2022/9/30
+#   created at 3:40 on 2022/10/13
+
 from utils.logger import Logger
-from data_loader.feature_loader import FeatureLoader
+from data_loader.point_loader2 import PointLoader2
 
 
 log = Logger().get_log()
-fl = FeatureLoader()
-fl.load_data("0.17.0_mf_20220526_163827.csv")
-X_train,X_test,y_train,y_test =fl.split()
+pl = PointLoader2()
+pl.load_data("0.17.0_mp2_20221013_004934.csv")
+X_train,X_test,y_train,y_test,tat,tet =pl.split_by_person()
 
 from classifier.myclassifer import My_classifier as mclf
 from sklearn.neighbors import KNeighborsClassifier
 
 clf = mclf(KNeighborsClassifier())
 clf.set_Datasets(X_train, y_train, X_test, y_test)
-clf.fit_predict()
+clf.fit_predict(true_label=tet)
 
 
 from sklearn.model_selection import GridSearchCV
@@ -39,4 +40,4 @@ log.info(grid_search.cv_results_)
 
 clf = mclf(grid_search.best_estimator_)
 clf.set_Datasets(X_train, y_train, X_test, y_test)
-clf.fit_predict()
+clf.fit_predict(tet)

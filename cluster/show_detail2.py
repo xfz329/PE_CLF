@@ -1,11 +1,15 @@
 #   -*- coding:utf-8 -*-
+#   The show_detail2.py in PE_CLF
+#   created by Jiang Feng(silencejiang@zju.edu.cn)
+#   created at 7:28 on 2022/10/12
+#   -*- coding:utf-8 -*-
 #   The show_detail.py in PE_CLF
 #   created by Jiang Feng(silencejiang@zju.edu.cn)
 #   created at 20:55 on 2022/6/1
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
-from data_loader.point_loader import PointLoader
+from data_loader.point_loader2 import PointLoader2
 from utils.project_dir import ProjectDir
 from utils.logger import Logger
 
@@ -17,13 +21,13 @@ Color_2 = "#333333"
 class Show_details:
     def __init__(self,detail,center,mark):
         self.work_dir = os.path.join(ProjectDir().dir_output,"clustering")
-        self.figure_dir = os.path.join(ProjectDir().dir_figures,"clustering")
+        self.figure_dir = os.path.join(ProjectDir().dir_figures,"clustering_2")
         self.center_file = os.path.join(self.work_dir, center)
         self.mark_file = os.path.join(self.work_dir, mark)
         self.log = Logger().get_log()
-        pl = PointLoader()
+        pl = PointLoader2()
         pl.load_data(detail)
-        self.data = pl.data
+        self.data = pl.data_all
         self.centers = pd.read_csv(self.center_file)
         self.marks = pd.read_csv(self.mark_file)
 
@@ -52,7 +56,8 @@ class Show_details:
                 y_len = 0
                 for i in range(length):
                     data_of_piece = person.iloc[i,5:].values.tolist()
-                    y_label = list(filter(check_positive, data_of_piece))
+                    # y_label = list(filter(check_positive, data_of_piece))
+                    y_label = data_of_piece
                     y_len = len(y_label)
                     x_label = range(len(y_label))
                     plt.plot(x_label, y_label, color=Color_0)
@@ -72,8 +77,8 @@ class Show_details:
 
 
 def check_positive(num):
-    return num>0
+    return num>=0
 
 if __name__ == "__main__":
-    sd = Show_details(detail="0.17.0_mp_20220526_163806.csv",center="cluster_centers_20220601_153643_.csv",mark="cluster_stastitics_20220601_210749_.csv")
+    sd = Show_details(detail="0.17.0_mp2_20221013_004934.csv",center="cluster_centers_20220601_153643_.csv",mark="cluster_stastitics_20220601_210749_.csv")
     sd.draw_details()

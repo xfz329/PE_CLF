@@ -1,20 +1,16 @@
 #   -*- coding:utf-8 -*-
 #   The pulse_tree1.py in PE_CLF
 #   created by Jiang Feng(silencejiang@zju.edu.cn)
-#   created at 3:31 on 2022/9/30
-#   -*- coding:utf-8 -*-
-#   The tree.py in PE_CLF
-#   created by Jiang Feng(silencejiang@zju.edu.cn)
-#   created at 5:02 on 2022/9/20
+#   created at 7:28 on 2022/9/30
 
 from utils.logger import Logger
-from data_loader.feature_loader import FeatureLoader
+from data_loader.point_loader import PointLoader
 
 
 log = Logger().get_log()
-fl = FeatureLoader()
-fl.load_data("0.17.0_mf_20220526_163827.csv")
-X_train,X_test,y_train,y_test =fl.split()
+pl = PointLoader()
+pl.load_data("0.17.0_mp_20221013_032707.csv")
+X_train,X_test,y_train,y_test =pl.split()
 
 from classifier.myclassifer import My_classifier as mclf
 from sklearn.tree import DecisionTreeClassifier

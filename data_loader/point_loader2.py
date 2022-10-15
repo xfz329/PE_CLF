@@ -107,7 +107,14 @@ class PointLoader2(AbstractDataLoader):
         train_set=self.data_all.loc[self.data_all["person_name"].isin(train)]
         test_set = self.data_all.loc[self.data_all["person_name"].isin(test)]
 
+        X_train = train_set.drop(["PE_state", "file_name", "person_name", "Pulse", "version"], axis=1, inplace=False)
+        y_train = train_set["PE_state"].copy()
+        X_test = test_set.drop(["PE_state", "file_name", "person_name", "Pulse", "version"], axis=1, inplace=False)
+        y_test = test_set["PE_state"].copy()
+
+        return X_train, X_test, y_train, y_test, train_set, test_set
+
 
 if __name__=="__main__":
     pl = PointLoader2()
-    pl.load_data("0.17.0_mp2_20220930_073345.csv")
+    pl.load_data("0.17.0_mp2_20221010_185919.csv")

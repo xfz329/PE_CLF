@@ -190,31 +190,32 @@ class My_classifier:
             out_file = os.path.join(self.out_dir, "dt_clf" + str(self.clf) + ".png")
             graph.write_png(out_file)
 
-    def show_importance(self):
+    def show_importance(self, show = False):
         from sklearn.ensemble import RandomForestClassifier
-        import numpy as np
+        if show:
+            import numpy as np
 
-        # self.log.info("list detailed importance")
-        # if isinstance(self.clf, RandomForestClassifier):
-        #     for feat, importance in zip(self.X_train.columns, self.clf.feature_importances_):
-        #         self.log.info('feature: {f}, importance: {i}'.format(f=feat, i=importance))
-        #
-        # # important_features = []
-        # # for x, i in enumerate(self.clf.feature_importances_):
-        # #     if i > np.average(self.feature_importances_):
-        # #         important_features.append(x)
-        # # important_names = self.X_train.columns[important_features > np.mean(important_features)]
+            # self.log.info("list detailed importance")
+            # if isinstance(self.clf, RandomForestClassifier):
+            #     for feat, importance in zip(self.X_train.columns, self.clf.feature_importances_):
+            #         self.log.info('feature: {f}, importance: {i}'.format(f=feat, i=importance))
+            #
+            # # important_features = []
+            # # for x, i in enumerate(self.clf.feature_importances_):
+            # #     if i > np.average(self.feature_importances_):
+            # #         important_features.append(x)
+            # # important_names = self.X_train.columns[important_features > np.mean(important_features)]
 
-        importances = pd.DataFrame({'feature': self.X_train.columns, 'importance': np.round(self.clf.feature_importances_, 3)})
-        full_path = os.path.join(self.data_dir, "rf", Time_stamp().get_day())
-        if not os.path.exists(full_path):
-            os.makedirs(full_path)
-        file_path = os.path.join(full_path, str(self.clf) + Time_stamp().get_time_stamp() + "_.csv")
-        importances.to_csv(file_path)
-        self.log.info("importance saved to file " + file_path)
+            importances = pd.DataFrame({'feature': self.X_train.columns, 'importance': np.round(self.clf.feature_importances_, 3)})
+            full_path = os.path.join(self.data_dir, "rf", Time_stamp().get_day())
+            if not os.path.exists(full_path):
+                os.makedirs(full_path)
+            file_path = os.path.join(full_path, str(self.clf) + Time_stamp().get_time_stamp() + "_.csv")
+            importances.to_csv(file_path)
+            self.log.info("importance saved to file " + file_path)
 
 
-    def fit_predict(self,true_label= None):
+    def fit_predict(self,true_label= None, show_imp = False):
         start = time.time()
         self.fit()
         self.performance_judge()
@@ -223,7 +224,7 @@ class My_classifier:
         end = time.time()
         self.dump()
         self.log.info("time consuming " + str(end - start))
-        # self.show_importance()
+        self.show_importance(show_imp)
         if true_label is None:
             pass
         else:

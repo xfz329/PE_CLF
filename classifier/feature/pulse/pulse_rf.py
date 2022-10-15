@@ -1,5 +1,5 @@
 #   -*- coding:utf-8 -*-
-#   The pulse_rf.py in PE_CLF
+#   The pulse_rf1.py in PE_CLF
 #   created by Jiang Feng(silencejiang@zju.edu.cn)
 #   created at 3:33 on 2022/9/30
 import pandas as pd

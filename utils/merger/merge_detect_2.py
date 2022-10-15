@@ -6,6 +6,7 @@ import csv
 
 import numpy as np
 import scipy.interpolate as spi
+import matplotlib.pyplot as plt
 
 from utils.merger.abstract_merger import AbstractMerger
 
@@ -46,10 +47,35 @@ class MergeDetect2(AbstractMerger):
                 xx = np.linspace(0,100-1,target_num)
                 tck = spi.splrep(x, points, k=3)
                 yy = spi.splev(xx,tck)
+                y_list = yy.tolist()
+
+                end_value = points[-1]
+                # print(end_value)
+
+                abs_y = [abs(k- end_value) for k in y_list]
+                sub_y = abs_y[-target_num//2:-1]
+
+                new_length = target_num//2 +sub_y.index(min(sub_y))
 
                 new_point = []
-                for j in range(0,target_num,length):
+                for j in range(0,new_length,new_length//100):
                     new_point.append(yy[j])
+                # new_point = new_point[0:100]
+
+                # plt.figure()
+                # plt.plot(range(len(points)), points)
+                # plt.title(str(i))
+                # plt.show()
+                #
+                # plt.figure()
+                # plt.plot(xx, yy)
+                # plt.title(str(i))
+                # plt.show()
+                #
+                # plt.figure()
+                # plt.plot(range(len(new_point)), new_point)
+                # plt.title(str(i))
+                # plt.show()
 
                 points_normal = self.normalization(new_point)
                 for j in range(100):
